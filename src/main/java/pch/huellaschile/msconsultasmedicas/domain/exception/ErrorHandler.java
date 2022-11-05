@@ -1,4 +1,4 @@
-package pch.huellaschile.msusuariosmascotas.application.domain.exception;
+package pch.huellaschile.msconsultasmedicas.domain.exception;
 
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -18,9 +18,27 @@ public class ErrorHandler {
         this.messageSource = messageSource;
     }
 
-    @ExceptionHandler(DuplicatedUserException.class)
-    public ResponseEntity<ErrorInfo> handleDuplicatedUserException(HttpServletRequest request,
-                                                                   DuplicatedUserException ex, Locale locale) {
+    @ExceptionHandler(ConsultOpenOrTreatmentException.class)
+    public ResponseEntity<ErrorInfo> handleDuplicatedPetException(HttpServletRequest request,
+                                                                  ConsultOpenOrTreatmentException ex, Locale locale) {
+        ErrorInfo response = new ErrorInfo();
+        response.setUrl(request.getRequestURL().toString());
+        response.setMessage(messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale));
+        return new ResponseEntity<>(response, HttpStatus.IM_USED);
+    }
+
+    @ExceptionHandler(OpenConsultException.class)
+    public ResponseEntity<ErrorInfo> handleDuplicatedPetException(HttpServletRequest request,
+                                                                  OpenConsultException ex, Locale locale) {
+        ErrorInfo response = new ErrorInfo();
+        response.setUrl(request.getRequestURL().toString());
+        response.setMessage(messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale));
+        return new ResponseEntity<>(response, HttpStatus.IM_USED);
+    }
+
+    @ExceptionHandler(OtherVeterinarianException.class)
+    public ResponseEntity<ErrorInfo> handleDuplicatedPetException(HttpServletRequest request,
+                                                                  OtherVeterinarianException ex, Locale locale) {
         ErrorInfo response = new ErrorInfo();
         response.setUrl(request.getRequestURL().toString());
         response.setMessage(messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale));

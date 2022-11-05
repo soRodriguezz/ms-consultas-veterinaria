@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pch.huellaschile.msconsultasmedicas.domain.entities.Consulta;
 import pch.huellaschile.msconsultasmedicas.domain.entities.Dueno;
+import pch.huellaschile.msconsultasmedicas.domain.exception.ConsultOpenOrTreatmentException;
+import pch.huellaschile.msconsultasmedicas.domain.exception.OpenConsultException;
+import pch.huellaschile.msconsultasmedicas.domain.exception.OtherVeterinarianException;
 import pch.huellaschile.msconsultasmedicas.domain.services.ConsultaService;
 import pch.huellaschile.msconsultasmedicas.persistence.dto.RequestConsultaDTO;
 
@@ -30,7 +33,7 @@ public class ConsultaController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Consulta> save(@RequestBody RequestConsultaDTO dto) {
+    public ResponseEntity<Consulta> save(@RequestBody RequestConsultaDTO dto) throws OpenConsultException, OtherVeterinarianException {
         return new ResponseEntity<>(service.save(dto), HttpStatus.OK);
     }
 
@@ -60,7 +63,7 @@ public class ConsultaController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object>  deleteConsulta(@PathVariable int id) {
+    public ResponseEntity<Object>  deleteConsulta(@PathVariable int id) throws ConsultOpenOrTreatmentException {
         service.deleteConsulta(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

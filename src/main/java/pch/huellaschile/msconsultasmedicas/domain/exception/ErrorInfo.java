@@ -1,4 +1,4 @@
-package pch.huellaschile.msusuariosmascotas.application.domain.exception;
+package pch.huellaschile.msconsultasmedicas.domain.exception;
 
 public class ErrorInfo {
     private String url;

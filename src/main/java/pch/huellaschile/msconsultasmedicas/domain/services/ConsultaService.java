@@ -8,6 +8,9 @@ import pch.huellaschile.msconsultasmedicas.domain.entities.Consulta;
 import pch.huellaschile.msconsultasmedicas.domain.entities.Dueno;
 import pch.huellaschile.msconsultasmedicas.domain.entities.Mascota;
 import pch.huellaschile.msconsultasmedicas.domain.entities.Veterinaria;
+import pch.huellaschile.msconsultasmedicas.domain.exception.ConsultOpenOrTreatmentException;
+import pch.huellaschile.msconsultasmedicas.domain.exception.OpenConsultException;
+import pch.huellaschile.msconsultasmedicas.domain.exception.OtherVeterinarianException;
 import pch.huellaschile.msconsultasmedicas.domain.gateways.ConsultaGateway;
 import pch.huellaschile.msconsultasmedicas.domain.gateways.DuenoGateway;
 import pch.huellaschile.msconsultasmedicas.domain.gateways.MascotaGateway;
@@ -39,18 +42,19 @@ public class ConsultaService {
         return gateway.findById(id);
     }
 
-    public Consulta save(RequestConsultaDTO dto) {
+    public Consulta save(RequestConsultaDTO dto) throws OpenConsultException, OtherVeterinarianException {
 
         boolean consulta1 = gateway.existsByEstadoConsultaContainingIgnoreCaseAndIdMascota("abierta", dto.getIdMascota());
+        Object[] args = {dto};
 
         if(consulta1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La mascota ya tiene una consulta abierta");
+            throw new OpenConsultException("consulta.consultopen.message", args);
         }
 
         boolean existMascota = gateway.existsByIdMascotaAndIdVeterinaria(dto.getIdMascota(), dto.getIdVeterinaria());
 
         if(existMascota) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La mascota ya pertenece a otra veterinaria");
+            throw new OtherVeterinarianException("consulta.otherveterinarian.message", args);
         }
 
         Optional<Mascota> mascota = gatewayMasc.findById(dto.getIdMascota());
@@ -209,13 +213,14 @@ public class ConsultaService {
         return gateway.updateConsulta(consulta);
     }
 
-    public void deleteConsulta(int id){
+    public void deleteConsulta(int id) throws ConsultOpenOrTreatmentException {
         Optional<Consulta> consulta1 = gateway.findById(id);
 
         String estado = consulta1.get().getEstadoConsulta();
 
         if(estado.equals("en tratamiento") || estado.equals("abierta")){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La consulta sigue abierta");
+            Object[] args = {id};
+            throw new ConsultOpenOrTreatmentException("consulta.opentreatment.message", args);
         }
 
         gateway.findById(id).map(consulta -> {
